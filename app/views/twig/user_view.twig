@@ -1,0 +1,20 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+    <h1>Страница пользователя</h1>
+    <div class="row">
+
+    {% for row in data %}
+        <div class="col-md-4">
+            <h2>{{ row.name }}</h2>
+            <p>{{ row.email }}</p>
+            <p>{{ row.about }}</p>
+            <p>{{ row.avatar }}</p>
+        </div>
+    {% endfor %}
+
+    </div>
+
+
+{% endblock %}
