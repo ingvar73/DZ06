@@ -30,7 +30,7 @@ class Model_Auth extends Model
     }
 
     public function quality ($one, $two, $err){
-        $one == $two ? : $this->err[] = $err;
+        password_verify($one, $two) ? : $this->err[] = $err ;
     }
 
     public function unique(array $row, $err){
@@ -41,21 +41,7 @@ class Model_Auth extends Model
         return $this->err;
     }
 
-    public function generateSalt ($int){
-        $chars = 'qwertyuiopasdfghjklzxcvbnm0123456789QWERTYUIOPASDFGHJKLZXCVBNM<>?;][\/-=)(+';
-        $size = strlen($chars) - 1;
-        $salt = '';
-        while ($int--){
-            $salt .= $chars[rand(0, $size)];
-        }
-        return $salt;
-    }
-
-    public function generateHash ($algo = PASSWORD_DEFAULT, array $options = null) {
-        !is_null($options) ? : $options = [
-            'salt' => $this->generateSalt(22),
-            'cost' => 10
-        ];
-        $this->password = password_hash($this->password, $algo, $options);
+    public function generateHash ($algo = PASSWORD_BCRYPT) {
+        $this->password = password_hash($this->password, $algo);
     }
 }

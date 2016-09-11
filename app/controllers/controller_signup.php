@@ -31,6 +31,9 @@ class Controller_Signup extends Controller {
             if(empty($reg->getErrors())){
                 $reg->generateHash();
                 echo !$db->query("INSERT INTO users (login, password, email, date) VALUES ('{$reg->login}', '{$reg->password}', '{$reg->email}', '{$reg->date}')") ? : 'Пользователь успешно создан!';
+
+                // Подготовка к отправке сообщения на почту
+
             } else {
                 foreach ($reg->getErrors() as $err){
                     echo $err.'<br />';

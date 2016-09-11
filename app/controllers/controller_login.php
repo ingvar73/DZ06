@@ -22,22 +22,26 @@ class Controller_Login extends Controller {
             $reg = new Model_Auth($login, $password);
             $reg->regex(Model_Auth::M_PASSWORD_PATTERN, $reg->password, 'Некорректный пароль!');
             $reg->regex(Model_Auth::LOGIN_PATTERN, $reg->login, 'Некорректный логин!');
-            $reg->generateHash();
-            $result = $db->query("SELECT login, password FROM users WHERE login = '{$reg->login}' AND password = '{$reg->password}' LIMIT 1");
-//            $row = $db->fetch_assoc($result);
-            $row = $result->num_rows;
-//            var_dump($row);
+
+            $result = $db->query("SELECT id, password FROM users WHERE login = '{$reg->login}'");
+            $row = $db->fetch_assoc($result);
+//            var_dump($row['password']);
+//            var_dump($reg->password);
+
+            $reg->quality($reg->password, $row['password'], 'Пароли не совпадают или пользователь не зарегистрирован!');
 
 
             if(empty($reg->getErrors())){
                 if ($row > 0){
                     print ("Пользователь авторизован!");
+                    setcookie("id", $row['id'], time()+60*60*24*30);
                     $_SESSION["login"] = $login;
                     $_SESSION["password"] = $password;
+
                 } else{
                     echo "Пользователь не существует, зарегистрируйтесь";
-                    Model_Redirect::redirectToPage('user/');
                 }
+                Model_Redirect::redirectToPage('user/');
 
                 //Все хорошо, переход на страницу пользователя
 
