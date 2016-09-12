@@ -23,7 +23,7 @@ class Controller_Login extends Controller {
             $reg->regex(Model_Auth::M_PASSWORD_PATTERN, $reg->password, 'Некорректный пароль!');
             $reg->regex(Model_Auth::LOGIN_PATTERN, $reg->login, 'Некорректный логин!');
 
-            $result = $db->query("SELECT id, email, password FROM users WHERE login = '{$reg->login}'");
+            $result = $db->query("SELECT id, email, password FROM users WHERE login = '{$reg->login}' AND activate = '1'");
             $row = $db->fetch_assoc($result);
 //            var_dump($row['password']);
 //            var_dump($reg->password);
