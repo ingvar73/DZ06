@@ -48,4 +48,14 @@ class Model_Signup extends Model
     public function generateHash ($algo = PASSWORD_BCRYPT) {
         $this->password = password_hash($this->password, $algo);
     }
+
+    public function generateCode($length=6) {
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHI JKLMNOPRQSTUVWXYZ0123456789";
+        $code = "";
+        $clen = strlen($chars) - 1;
+        while (strlen($code) < $length) {
+            $code .= $chars[mt_rand(0,$clen)];
+        }
+        return $code;
+    }
 }

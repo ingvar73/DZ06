@@ -8,7 +8,7 @@
     {% for row in data %}
         <div class="col-md-4">
             <h2>Ваш логин: {{ row.login }}</h2>
-            <p>Электронная почта: <a href="mailto:{{ row.email }}">{{ row.email }}</a></p>
+            <p>Электронная почта:<br> <a href="mailto:{{ row.email }}">{{ row.email }}</a></p>
         </div>
     {% endfor %}
 

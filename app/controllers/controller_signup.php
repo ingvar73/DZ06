@@ -3,11 +3,8 @@ require_once __DIR__.'/../components/Db.php';
 require_once __DIR__.'/../models/model_redirect.php';
 // Читаем настройки config для отправки письма
 require_once(__DIR__.'/../lib/phpmailer/PHPMailerAutoload.php');
-
+require_once (__DIR__.'/../lib/Session.php');
 class Controller_Signup extends Controller {
-
-//    private $activation;
-    private $id_activ;
 
     public function action_index()
     {
@@ -19,7 +16,6 @@ class Controller_Signup extends Controller {
     public function action_register()
     {
         $db = Db::getInstance();
-        session_start();
 
         if(isset($_POST['register'])){
             $login = $db->escape($_POST['login']);
@@ -38,15 +34,15 @@ class Controller_Signup extends Controller {
             $reg->regex(Model_Signup::LOGIN_PATTERN, $reg->login, 'Некорректный логин!');
             $reg->regex(Model_Signup::EMAIL_PATTERN, $reg->email, 'Некорректный email!');
             if(empty($reg->getErrors())){
-                $reg->generateHash();
-                echo !$db->query("INSERT INTO users (login, password, email, date) VALUES ('{$reg->login}', '{$reg->password}', '{$reg->email}', '{$reg->date}')") ? : 'Пользователь успешно создан! На Ваш E-mail выслан код подтверждения!';
-
+//                $reg->generateHash();
+                $hash = $reg->generateCode(10);
+                var_dump($hash);
+                echo !$db->query("INSERT INTO users (login, password, hash, email, date) VALUES ('{$reg->login}', '{$reg->password}', '{$hash}', '{$reg->email}', '{$reg->date}')") ? : 'Пользователь успешно создан! <br>На Ваш E-mail выслан код подтверждения!';
+                Session::init();
                 // Подготовка к отправке сообщения на почту
-                $active = $db->query("SELECT id, email FROM users WHERE login = '{$reg->login}'");
+                $active = $db->query("SELECT id, email, hash FROM users WHERE login = '{$reg->login}'");
                 $id_activ = $active->fetch_array();
-                $activation = md5($id_activ['id']);
-//                $_SESSION["id_active"] = $activation;
-//                $_SESSION["id"] = $reg->id;
+                Session::set($login, $reg->login);
 
                 try{
                     $mail = new PHPMailer(true); // Создаем экземпляр класса PHPMailer
@@ -64,14 +60,13 @@ class Controller_Signup extends Controller {
                     $mail->AddReplyTo($__smtp['addreply'], 'First Last');  // Альтернативный адрес для ответа
                     $mail->SetFrom($__smtp['username'], $__smtp['mail_title']);  // Адресант почтового сообщения
                     $mail->Subject = htmlspecialchars($__smtp['mail_title']);  // Тема письма
-                    $mail->MsgHTML('Спасибо за регистрацию на нашем сайте DZ06.LOFTSCHOOL \r\n Ваш логин: '.$reg->login.'\r\n Для того чтобы войти в свой аккуант его нужно активировать.\n
+                    $mail->MsgHTML('Спасибо за регистрацию на нашем сайте DZ06.LOFTSCHOOL. Ваш логин: '.$reg->login.'  Для того чтобы войти в свой аккуант его нужно активировать.\n
 Чтобы активировать ваш аккаунт, перейдите по ссылке:\n
-http://dz06.loftschool/signup/activation/\r\n
-С уважением, Администрация сайта'); // Текст сообщения
+http://dz06.loftschool/signup/activation/?login='.$reg->login.'&hash='.$hash.'   С уважением, Администрация сайта'); // Текст сообщения
                     $mail->Send();
 //                    return 1;
-                    echo "<br>На Ваш E-mail выслано письмо с cсылкой, для активации вашего аккуанта. <a href='/'>Главная страница</a></p>";
-                    return $id_activ;
+                    echo "<br>На Ваш E-mail выслано письмо с cсылкой, для активации вашего аккуанта. <br><a href='/'>Главная страница</a></p>";
+                    return 1;
                 }
                 catch (phpmailerException $e) {
                     return $e->errorMessage();
@@ -88,24 +83,26 @@ http://dz06.loftschool/signup/activation/\r\n
 
     public function action_activation()
     {
-        session_start();
+        $login = $_GET['login'];
+        $hash = $_GET['hash'];
         $db = Db::getInstance();
+
         if ($db){
-//            $act = $this->id_activ['id'];
-            $active = $db->query("SELECT id FROM users WHERE login = '{$this->id_activ['login']}'");
-            $id_activate = $active->fetch_array();
-//            $activation = md5($id_activate['id']);
-            if ($active){
+            $active = $db->query("SELECT hash FROM users WHERE login = '{$login}'");
+            $hash_activate = $active->fetch_array();
+            if ($hash == $hash_activate['hash']){
                 // код подтверждения совпадает - активируем
-                echo !$db->query("UPDATE users SET activate = '1' WHERE login = '{$this->id_activ['login']}'");
+                echo !$db->query("UPDATE users SET activate = '1' WHERE login = '{$login}'");
                 echo "Авторизован";
-                var_dump($this->id_activ['login']);
-//                Model_Redirect::redirectToPage('user/');
+//                var_dump($login);
+//                var_dump($hash);
+                Model_Redirect::redirectToPage('login/');
             }
         } else
         {
             echo "Сессия не открыта";
-            var_dump($act);
+            var_dump($_SESSION['id']);
+            Session::destroy();
         }
     }
 }
