@@ -16,6 +16,13 @@ class Controller_Login extends Controller {
 
         if(isset($_POST['auth'])){
             session_start();
+            $secret = '6LezGioTAAAAAISoHFhC2hEQHl1ZVftKqQB1Z_lg';
+            $response = $_POST['g-recaptcha-response'];
+            $remoteip = $_SERVER['REMOTE_ADDR'];
+            $url = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret&response=$response&remoteip=$remoteip");
+            $result_c = json_decode($url, TRUE);
+//            var_dump($result_c['success']);
+
             $login = $db->escape($_POST['login']);
             $password = $db->escape($_POST['password']);
 
@@ -32,7 +39,7 @@ class Controller_Login extends Controller {
 
 
             if(empty($reg->getErrors())){
-                if ($row > 0){
+                if ($row > 0 and $result_c['success'] == 1){
                     print ("Пользователь авторизован!");
                     setcookie("id", $row['id'], time()+60*60*24*30);
                     $_SESSION["login"] = $login;
@@ -40,7 +47,7 @@ class Controller_Login extends Controller {
                     $_SESSION["email"] = $row['email'];
 
                 } else{
-                    echo "Пользователь не существует, зарегистрируйтесь";
+                    echo "Пользователь не существует, зарегистрируйтесь или каптча введена неверно!";
                 }
                 Model_Redirect::redirectToPage('user/');
 

@@ -18,6 +18,13 @@ class Controller_Signup extends Controller {
         $db = Db::getInstance();
 
         if(isset($_POST['register'])){
+            $secret = '6LezGioTAAAAAISoHFhC2hEQHl1ZVftKqQB1Z_lg';
+            $response = $_POST['g-recaptcha-response'];
+            $remoteip = $_SERVER['REMOTE_ADDR'];
+            $url = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret&response=$response&remoteip=$remoteip");
+            $result_c = json_decode($url, TRUE);
+//            var_dump($result_c['success']);
+
             $login = $db->escape($_POST['login']);
             $password = $db->escape($_POST['password']);
             $confirm_password = $db->escape($_POST['cpassword']);
@@ -33,10 +40,10 @@ class Controller_Signup extends Controller {
             $reg->regex(Model_Signup::M_PASSWORD_PATTERN, $reg->password, 'Некорректный пароль!');
             $reg->regex(Model_Signup::LOGIN_PATTERN, $reg->login, 'Некорректный логин!');
             $reg->regex(Model_Signup::EMAIL_PATTERN, $reg->email, 'Некорректный email!');
-            if(empty($reg->getErrors())){
-//                $reg->generateHash();
+            if(empty($reg->getErrors()) and $result_c['success'] == 1){
+                $reg->generateHash();
                 $hash = $reg->generateCode(10);
-                var_dump($hash);
+//                var_dump($hash);
                 echo !$db->query("INSERT INTO users (login, password, hash, email, date) VALUES ('{$reg->login}', '{$reg->password}', '{$hash}', '{$reg->email}', '{$reg->date}')") ? : 'Пользователь успешно создан! <br>На Ваш E-mail выслан код подтверждения!';
                 Session::init();
                 // Подготовка к отправке сообщения на почту

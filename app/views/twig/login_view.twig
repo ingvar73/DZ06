@@ -5,6 +5,7 @@
     <div class="container">
 
         <form class="form-signin" method="post" action="auth">
+            <fieldset>
             <h2 class="form-signin-heading">Пожалуйста авторизуйтесь</h2>
             <label for="inputLogin" class="sr-only">Ваш логин</label>
             <input type="text" name="login" id="inputLogin" class="form-control" placeholder="Логин" required autofocus>
@@ -15,6 +16,10 @@
                     <input type="checkbox" value="remember-me"> Запомнить меня
                 </label>
             </div>
+            <div class="g-recaptcha" data-sitekey="6LezGioTAAAAAHp19rDCSR6PcAZLtzyshnvt9cPB"></div>
+            <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=ru">
+            </script>
+            </fieldset>
             <button class="btn btn-lg btn-primary btn-block" type="submit" name="auth">Вход</button>
         </form>
 

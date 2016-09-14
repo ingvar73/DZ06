@@ -5,6 +5,7 @@
     <div class="container">
 
         <form class="form-signin" method="post" action="register" enctype="multipart/form-data">
+            <fieldset>
             <h2 class="form-signin-heading">Пожалуйста зарегистрируйтесь</h2>
             <label for="inputEmail" class="sr-only">Ваш Email</label>
             <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email адрес" required autofocus>
@@ -14,6 +15,10 @@
             <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Пароль" required>
             <label for="inputCPassword" class="sr-only">Повторный пароль</label>
             <input type="password" name="cpassword" id="inputCPassword" class="form-control" placeholder="Подтверждение пароля" required>
+            <div class="g-recaptcha" data-sitekey="6LezGioTAAAAAHp19rDCSR6PcAZLtzyshnvt9cPB"></div>
+            <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=ru">
+            </script>
+            </fieldset>
             <button class="btn btn-lg btn-primary btn-block" name="register" type="submit">Вход</button>
         </form>
 
