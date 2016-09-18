@@ -6,10 +6,13 @@ class Controller_User extends Controller {
     {
         $this->model = new Model_User();
         $this->view = new View();
+
     }
 
     function action_index()
     {
+
+
         $data = $this->model->get_data();
 
         $this->view->generate('user_view.twig', array('title'=>'Страница пользователя', 'data' => $data));

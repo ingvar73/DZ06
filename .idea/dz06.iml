@@ -5,6 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/google/recaptcha" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpmailer/phpmailer" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/verot/class.upload.php" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -24,11 +25,13 @@
           <root url="file://$MODULE_DIR$/vendor/composer" />
           <root url="file://$MODULE_DIR$/vendor/google/recaptcha" />
           <root url="file://$MODULE_DIR$/vendor/phpmailer/phpmailer" />
+          <root url="file://$MODULE_DIR$/vendor/verot/class.upload.php" />
         </CLASSES>
         <SOURCES>
           <root url="file://$MODULE_DIR$/vendor/composer" />
           <root url="file://$MODULE_DIR$/vendor/google/recaptcha" />
           <root url="file://$MODULE_DIR$/vendor/phpmailer/phpmailer" />
+          <root url="file://$MODULE_DIR$/vendor/verot/class.upload.php" />
         </SOURCES>
       </library>
     </orderEntry>

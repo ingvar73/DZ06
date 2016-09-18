@@ -1,10 +1,22 @@
 <?php
+//error_reporting(E_ALL);
 require_once __DIR__.'/../components/Db.php';
+//require_once __DIR__.'/../components/Upload.php';
+//require_once __DIR__.'/../components/User_Upload_Image.php';
+//require_once __DIR__.'/../components/class.upload.php';
+//require_once 'vendor/verot/class.upload.php/src/class.upload.php';
 require_once __DIR__.'/../models/model_redirect.php';
 // Читаем настройки config для отправки письма
 require_once(__DIR__.'/../lib/phpmailer/PHPMailerAutoload.php');
 require_once (__DIR__.'/../lib/Session.php');
+$dir_name = str_replace('\\', '/', dirname(__FILE__));
+define ('ROOT', $dir_name);
+
 class Controller_Signup extends Controller {
+    //    function __construct()
+//    {
+//        $this->basePath = $_SERVER[ 'DOCUMENT_ROOT' ];
+//    }
 
     public function action_index()
     {
@@ -16,36 +28,50 @@ class Controller_Signup extends Controller {
     public function action_register()
     {
         $db = Db::getInstance();
-
+        Session::init();
         if(isset($_POST['register'])){
+
             $secret = '6LezGioTAAAAAISoHFhC2hEQHl1ZVftKqQB1Z_lg';
             $response = $_POST['g-recaptcha-response'];
             $remoteip = $_SERVER['REMOTE_ADDR'];
             $url = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret&response=$response&remoteip=$remoteip");
             $result_c = json_decode($url, TRUE);
-//            var_dump($result_c['success']);
 
             $login = $db->escape($_POST['login']);
+            $email = $db->escape($_POST['email']);
+            $name = $db->escape($_POST['name']);
+            $age = $db->escape($_POST['age']);
+            $about = $db->escape($_POST['about']);
             $password = $db->escape($_POST['password']);
             $confirm_password = $db->escape($_POST['cpassword']);
-            $email = $db->escape($_POST['email']);
-            $reg = new Model_Signup($login, $password, $confirm_password, $email);
+
+            //код для изображения
+//            var_dump($_FILES);
+            require_once __DIR__.'/../components/Upload.php';
+
+
+            $reg = new Model_Signup($login, $email, $password, $confirm_password, $name, $age, $about);
             $result = $db->query("SELECT COUNT(login) FROM users WHERE login = '{$reg->login}'");
             $row = $db->fetch_assoc($result);
             $reg->unique($row, 'Логин неуникален!');
             $result = $db->query("SELECT COUNT(email) FROM users WHERE email = '{$reg->email}'");
             $row = $db->fetch_assoc($result);
             $reg->unique($row, 'Email неуникален!');
+            $reg->len(5, 50, $name, 'Имя должно быть не менее 5 и не более 50 символов!');
+            $reg->min_max(10, 100, $age, 'Значение поля возраст должно быть не менее 10 и не более 100!');
+            $reg->len(50, 200, $about, 'Описание должно быть не менее 50 символов!');
             $reg->quality($reg->password, $reg->confirm_password, 'Пароли не совпадают!');
             $reg->regex(Model_Signup::M_PASSWORD_PATTERN, $reg->password, 'Некорректный пароль!');
             $reg->regex(Model_Signup::LOGIN_PATTERN, $reg->login, 'Некорректный логин!');
             $reg->regex(Model_Signup::EMAIL_PATTERN, $reg->email, 'Некорректный email!');
+
+
+
             if(empty($reg->getErrors()) and $result_c['success'] == 1){
                 $reg->generateHash();
                 $hash = $reg->generateCode(10);
 //                var_dump($hash);
-                echo !$db->query("INSERT INTO users (login, password, hash, email, date) VALUES ('{$reg->login}', '{$reg->password}', '{$hash}', '{$reg->email}', '{$reg->date}')") ? : 'Пользователь успешно создан! <br>На Ваш E-mail выслан код подтверждения!';
-                Session::init();
+                echo !$db->query("INSERT INTO users (login, email, password, name, age, about, avatar, hash, date) VALUES ('{$reg->login}', '{$reg->email}', '{$reg->password}', '{$reg->name}', '{$reg->age}', '{$reg->about}', '{$avatar}', '{$hash}', '{$reg->date}')") ? : 'Пользователь успешно создан! <br>На Ваш E-mail выслан код подтверждения!';
                 // Подготовка к отправке сообщения на почту
                 $active = $db->query("SELECT id, email, hash FROM users WHERE login = '{$reg->login}'");
                 $id_activ = $active->fetch_array();

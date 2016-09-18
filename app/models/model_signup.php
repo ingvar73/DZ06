@@ -15,13 +15,18 @@ class Model_Signup extends Model
     const M_PASSWORD_PATTERN = '/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,30}/';
     const LOGIN_PATTERN = '/^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$/';
     const EMAIL_PATTERN = '/@/';
+//    const AGE_PATTERN = '/^[0-9]{10,100}/';
 
-    public function __construct($login, $password, $confirm_password, $email)
+    public function __construct($login, $email, $password, $confirm_password, $name, $age, $about)
     {
         $this->login = $login;
+        $this->email = $email;
         $this->password = $password;
         $this->confirm_password = $confirm_password;
-        $this->email = $email;
+        $this->name = $name;
+        $this->age = $age;
+        $this->about = $about;
+//        $this->avatar = $avatar;
         $this->date = date('d:m:y');
     }
 
@@ -30,7 +35,11 @@ class Model_Signup extends Model
     }
 
     public function len ($min, $max, $variable, $err){
-        !(strlen($variable) > $max || strlen($variable) < $min) ? : $this->err[] = $err;
+        !(mb_strlen($variable) > $max || mb_strlen($variable) < $min) ? : $this->err[] = $err;
+    }
+
+    public function min_max ($min, $max, $variable, $err){
+        !($variable > $max || $variable < $min) ? : $this->err[] = $err;
     }
 
     public function quality ($one, $two, $err){
@@ -58,4 +67,16 @@ class Model_Signup extends Model
         }
         return $code;
     }
+
+//    public function verify_file($file, $err)
+//    {
+//        if    (!empty($file)) //проверяем, отправил    ли пользователь изображение
+//        {
+//            $file = trim($file);
+//            return $file;
+//        }
+//        $file = 'upload/net-avatara.jpg';
+//        $this->err[] = $err;
+//        return $file;
+//    }
 }
